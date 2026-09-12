@@ -3,7 +3,8 @@ import { useEffect, useRef, useState } from 'react';
 import type { CeremonyObject } from '../../types/ceremony';
 import type { ClientToServerMessage } from '../../types/protocol';
 import type { ActiveDragState } from '../../lib/websocket';
-import { useParticleTrail } from './useParticleTrail';
+import { DragEmitter } from '../../lib/websocket';
+import { ParticleTrailCanvas } from './ParticleTrailCanvas';
 import { useAudio } from '../../hooks/useAudio';
 
 interface DigitalObjectProps {
@@ -17,15 +18,13 @@ interface DigitalObjectProps {
   onAttemptComplete?: (id: CeremonyObject) => void;
   sendMessage?: (msg: ClientToServerMessage) => void;
   clientId?: string;
-  activeDrag?: ActiveDragState | null;
 }
 
-export function DigitalObject({ id, label, isCompleted, isNewlyCompleted, position, delay, targetRef, onAttemptComplete, sendMessage, clientId, activeDrag }: DigitalObjectProps) {
+export function DigitalObject({ id, label, isCompleted, isNewlyCompleted, position, delay, targetRef, onAttemptComplete, sendMessage, clientId }: DigitalObjectProps) {
   const nodeRef = useRef<HTMLDivElement>(null);
   const controls = useAnimation();
   const [isEmitting, setIsEmitting] = useState(false);
   const [isVisible, setIsVisible] = useState(!isCompleted);
-  const particles = useParticleTrail(isEmitting, nodeRef);
   const impactAudio = useAudio('/assets/sounds/value-impact.mp3');
 
   const [isDragging, setIsDragging] = useState(false);
@@ -53,35 +52,39 @@ export function DigitalObject({ id, label, isCompleted, isNewlyCompleted, positi
 
   // Handle remote drag mirroring
   useEffect(() => {
-    if (isCompleted || isNewlyCompleted || isDragging) return;
+    const unsub = DragEmitter.subscribe((activeDrag) => {
+      if (isCompleted || isNewlyCompleted || isDragging) return;
 
-    if (activeDrag?.object === id && activeDrag.clientId !== clientId) {
-      if (!remoteDragRef.current) {
-        controls.stop();
-        setIsEmitting(true);
-        controls.start({
-          scale: 1.15,
-          filter: 'brightness(1.5) drop-shadow(0 0 20px rgba(160, 42, 152, 0.8))',
-          transition: { duration: 0.2 },
+      if (activeDrag?.object === id && activeDrag.clientId !== clientId) {
+        if (!remoteDragRef.current) {
+          controls.stop();
+          setIsEmitting(true);
+          controls.start({
+            scale: 1.15,
+            filter: 'brightness(1.5) drop-shadow(0 0 20px rgba(160, 42, 152, 0.8))',
+            transition: { duration: 0.2 },
+          });
+          remoteDragRef.current = true;
+        }
+        controls.set({
+          x: activeDrag.x * window.innerWidth,
+          y: activeDrag.y * window.innerHeight,
         });
-        remoteDragRef.current = true;
+      } else if (remoteDragRef.current) {
+        remoteDragRef.current = false;
+        setIsEmitting(false);
+        controls.start({
+          x: 0,
+          y: 0,
+          scale: 1,
+          filter: 'brightness(1) drop-shadow(0 0 0px transparent)',
+          transition: { type: 'spring', stiffness: 300, damping: 20 },
+        });
       }
-      controls.set({
-        x: activeDrag.x * window.innerWidth,
-        y: activeDrag.y * window.innerHeight,
-      });
-    } else if (remoteDragRef.current) {
-      remoteDragRef.current = false;
-      setIsEmitting(false);
-      controls.start({
-        x: 0,
-        y: 0,
-        scale: 1,
-        filter: 'brightness(1) drop-shadow(0 0 0px transparent)',
-        transition: { type: 'spring', stiffness: 300, damping: 20 },
-      });
-    }
-  }, [activeDrag, id, clientId, isCompleted, isNewlyCompleted, isDragging, controls]);
+    });
+    
+    return unsub;
+  }, [id, clientId, isCompleted, isNewlyCompleted, isDragging, controls]);
 
   useEffect(() => {
     if (isCompleted && isNewlyCompleted) {
@@ -274,17 +277,8 @@ export function DigitalObject({ id, label, isCompleted, isNewlyCompleted, positi
 
   return (
     <>
-      {/* DOM-based Particle Trail rendered outside the unmounting node */}
-      {particles.map((p) => (
-        <div
-          key={p.id}
-          className={`trail-particle ${p.color}`}
-          style={{
-            left: p.x,
-            top: p.y,
-          }}
-        />
-      ))}
+      {/* High-performance Canvas Particle Trail */}
+      <ParticleTrailCanvas isEmitting={isEmitting} nodeRef={nodeRef} />
       
       <div className="digital-object-container" style={position}>
         <AnimatePresence>

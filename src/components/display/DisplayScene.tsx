@@ -12,7 +12,6 @@ interface DisplaySceneProps {
   state: CeremonyState;
   sendMessage: (msg: ClientToServerMessage) => void;
   clientId: string;
-  activeDrag: ActiveDragState | null;
 }
 
 const labels: Record<CeremonyObject, string> = {
@@ -38,7 +37,7 @@ const positions: Record<CeremonyObject, { top: string; left: string; delay: numb
   future: { top: '40%', left: '5%', delay: 0.2 },
 };
 
-export function DisplayScene({ state, sendMessage, clientId, activeDrag }: DisplaySceneProps) {
+export function DisplayScene({ state, sendMessage, clientId }: DisplaySceneProps) {
   const [justCompleted, setJustCompleted] = useState<{ id: CeremonyObject; timestamp: number } | null>(null);
   const [previousState, setPreviousState] = useState<CeremonyState>(state);
   const targetRef = useRef<HTMLDivElement>(null);
@@ -121,7 +120,6 @@ export function DisplayScene({ state, sendMessage, clientId, activeDrag }: Displ
             onAttemptComplete={(id) => sendMessage({ type: 'COMPLETE_OBJECT', object: id })}
             sendMessage={sendMessage}
             clientId={clientId}
-            activeDrag={activeDrag}
           />
         ))}
       </div>

@@ -27,7 +27,7 @@ const labels: Record<CeremonyObject, string> = {
 
 export default function App() {
   const mode = getMode();
-  const { state, status, sendMessage, clientId, activeDrag } = useCeremonyWebSocket();
+  const { state, status, sendMessage, clientId } = useCeremonyWebSocket();
 
   const completedCount = useMemo(
     () => CEREMONY_OBJECTS.filter((key) => state[key] === 'completed').length,
@@ -134,5 +134,5 @@ export default function App() {
     );
   }
 
-  return <DisplayScene state={state} sendMessage={sendMessage} clientId={clientId} activeDrag={activeDrag} />;
+  return <DisplayScene state={state} sendMessage={sendMessage} clientId={clientId} />;
 }

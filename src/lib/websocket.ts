@@ -15,6 +15,19 @@ export interface ActiveDragState {
   y: number;
 }
 
+type DragListener = (dragState: ActiveDragState | null) => void;
+const dragListeners = new Set<DragListener>();
+
+export const DragEmitter = {
+  emit: (state: ActiveDragState | null) => {
+    dragListeners.forEach(listener => listener(state));
+  },
+  subscribe: (listener: DragListener) => {
+    dragListeners.add(listener);
+    return () => { dragListeners.delete(listener); };
+  }
+};
+
 // Derive WebSocket URL dynamically based on the current browser host.
 // This allows tablets/phones on the local network (e.g., 192.168.x.x) to connect automatically.
 const getWebSocketUrl = () => {
@@ -39,7 +52,6 @@ const WS_URL = getWebSocketUrl();
 export function useCeremonyWebSocket() {
   const [state, setState] = useState<CeremonyState>(initialCeremonyState);
   const [status, setStatus] = useState<ConnectionStatus>('connecting');
-  const [activeDrag, setActiveDrag] = useState<ActiveDragState | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<number | null>(null);
   
@@ -71,14 +83,16 @@ export function useCeremonyWebSocket() {
           case 'OBJECT_COMPLETED':
           case 'CEREMONY_RESET':
             setState(message.state);
-            setActiveDrag(null); // Clear drag on state change
+            DragEmitter.emit(null); // Clear drag on state change
             break;
           case 'DRAG_START':
           case 'DRAG_MOVE':
-            setActiveDrag({ object: message.object, clientId: message.clientId, x: message.x, y: message.y });
+            DragEmitter.emit({ object: message.object, clientId: message.clientId, x: message.x, y: message.y });
             break;
           case 'DRAG_END':
-            setActiveDrag((prev) => (prev?.object === message.object ? null : prev));
+            // Instead of prev checking, we just clear it. Since only one object can realistically be dragged 
+            // by a single remote client at a time, emitting null is safe and simplifies things.
+            DragEmitter.emit(null);
             break;
           case 'ERROR':
             console.error('[WebSocket Server Error]', message.message);
@@ -127,5 +141,5 @@ export function useCeremonyWebSocket() {
     }
   }, []);
 
-  return { state, status, sendMessage, clientId, activeDrag };
+  return { state, status, sendMessage, clientId };
 }
