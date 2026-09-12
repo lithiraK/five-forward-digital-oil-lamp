@@ -23,6 +23,7 @@ export function Atmosphere() {
       
       <div className="radial-glow"></div>
       <div className="radial-glow gold-bloom"></div>
+      <div className="atmosphere-vignette"></div>
       <div className="stage-reflection"></div>
       
       <GoldParticles />

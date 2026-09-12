@@ -12,7 +12,6 @@ interface DigitalObjectProps {
   label: string;
   isCompleted: boolean;
   isNewlyCompleted?: boolean;
-  position: { top: string; left: string };
   delay: number;
   targetRef?: React.RefObject<HTMLDivElement | null>;
   onAttemptComplete?: (id: CeremonyObject) => void;
@@ -20,7 +19,7 @@ interface DigitalObjectProps {
   clientId?: string;
 }
 
-export function DigitalObject({ id, label, isCompleted, isNewlyCompleted, position, delay, targetRef, onAttemptComplete, sendMessage, clientId }: DigitalObjectProps) {
+export function DigitalObject({ id, label, isCompleted, isNewlyCompleted, delay, targetRef, onAttemptComplete, sendMessage, clientId }: DigitalObjectProps) {
   const nodeRef = useRef<HTMLDivElement>(null);
   const controls = useAnimation();
   const [isEmitting, setIsEmitting] = useState(false);
@@ -102,8 +101,8 @@ export function DigitalObject({ id, label, isCompleted, isNewlyCompleted, positi
         });
 
         // Calculate dynamic travel delta based on exact DOM rects
-        let deltaX: string | number = `calc(50vw - ${position.left})`;
-        let deltaY: string | number = `calc(50vh - ${position.top})`;
+        let deltaX: string | number = 0;
+        let deltaY: string | number = 0;
 
         if (nodeRef.current && targetRef?.current) {
           const nodeRect = nodeRef.current.getBoundingClientRect();
@@ -162,7 +161,7 @@ export function DigitalObject({ id, label, isCompleted, isNewlyCompleted, positi
       hasRunSequence.current = false;
       setIsVisible(true);
     }
-  }, [isCompleted, isNewlyCompleted, controls, position, targetRef, impactAudio, id]);
+  }, [isCompleted, isNewlyCompleted, controls, targetRef, impactAudio, id]);
 
   // Pointer Interaction Handlers
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -280,7 +279,7 @@ export function DigitalObject({ id, label, isCompleted, isNewlyCompleted, positi
       {/* High-performance Canvas Particle Trail */}
       <ParticleTrailCanvas isEmitting={isEmitting} nodeRef={nodeRef} />
       
-      <div className="digital-object-container" style={position}>
+      <div className={`digital-object-container pos-${id}`}>
         <AnimatePresence>
           {isVisible && (
             <motion.div
@@ -300,8 +299,8 @@ export function DigitalObject({ id, label, isCompleted, isNewlyCompleted, positi
                   : {
                       opacity: 0,
                       scale: 0.2,
-                      x: targetRef?.current ? (targetRef.current.getBoundingClientRect().left + targetRef.current.getBoundingClientRect().width / 2) - (nodeRef.current ? nodeRef.current.getBoundingClientRect().left + nodeRef.current.getBoundingClientRect().width / 2 : 0) : `calc(50vw - ${position.left})`,
-                      y: targetRef?.current ? (targetRef.current.getBoundingClientRect().top + targetRef.current.getBoundingClientRect().height / 2) - (nodeRef.current ? nodeRef.current.getBoundingClientRect().top + nodeRef.current.getBoundingClientRect().height / 2 : 0) : `calc(50vh - ${position.top})`,
+                      x: targetRef?.current ? (targetRef.current.getBoundingClientRect().left + targetRef.current.getBoundingClientRect().width / 2) - (nodeRef.current ? nodeRef.current.getBoundingClientRect().left + nodeRef.current.getBoundingClientRect().width / 2 : 0) : 0,
+                      y: targetRef?.current ? (targetRef.current.getBoundingClientRect().top + targetRef.current.getBoundingClientRect().height / 2) - (nodeRef.current ? nodeRef.current.getBoundingClientRect().top + nodeRef.current.getBoundingClientRect().height / 2 : 0) : 0,
                       filter: 'blur(4px)',
                       transition: { duration: 1.2, ease: 'easeIn' },
                     }

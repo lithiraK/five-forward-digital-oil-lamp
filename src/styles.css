@@ -48,7 +48,7 @@ button { font: inherit; }
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background-color: #030105; /* Deep slate black */
+  background: radial-gradient(circle at center, #1a0820 0%, #050208 50%, #000000 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -68,14 +68,24 @@ button { font: inherit; }
   width: 150vmax;
   height: 150vmax;
   transform: translate(-50%, -50%);
-  background: radial-gradient(circle, rgba(145, 35, 145, 0.05) 0%, rgba(5, 5, 5, 0) 50%);
+  background: radial-gradient(circle, rgba(160, 42, 152, 0.12) 0%, rgba(80, 20, 80, 0.05) 35%, rgba(0, 0, 0, 0) 65%);
+  mix-blend-mode: screen;
 }
 
 .gold-bloom {
-  width: 60vmax;
-  height: 60vmax;
-  background: radial-gradient(circle, rgba(212, 175, 55, 0.05) 0%, rgba(5, 5, 5, 0) 60%);
+  width: 80vmax;
+  height: 80vmax;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.08) 0%, rgba(212, 175, 55, 0.02) 40%, rgba(0, 0, 0, 0) 70%);
+  mix-blend-mode: screen;
   z-index: 0;
+}
+
+.atmosphere-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, transparent 40%, rgba(160, 42, 152, 0.03) 80%, rgba(0,0,0,0.8) 100%);
+  pointer-events: none;
+  z-index: 2;
 }
 
 .stage-reflection {
@@ -144,9 +154,10 @@ button { font: inherit; }
   width: clamp(500px, 70vw, 1200px);
   height: clamp(500px, 70vw, 1200px);
   transform: translate(-50%, -50%);
-  background: radial-gradient(circle, rgba(160, 42, 152, 0.35) 0%, transparent 60%);
+  background: radial-gradient(circle, rgba(160, 42, 152, 0.4) 0%, rgba(160, 42, 152, 0.1) 40%, transparent 70%);
   border-radius: 50%;
   z-index: 1;
+  mix-blend-mode: screen;
   animation: breathe 8s ease-in-out infinite;
 }
 
@@ -157,9 +168,10 @@ button { font: inherit; }
   width: clamp(550px, 75vw, 1300px);
   height: clamp(550px, 75vw, 1300px);
   transform: translate(-50%, -50%);
-  background: radial-gradient(circle, rgba(212, 175, 55, 0.12) 0%, transparent 60%);
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 60%);
   border-radius: 50%;
   z-index: 1;
+  mix-blend-mode: screen;
 }
 
 .logo-pulse {
@@ -209,6 +221,7 @@ button { font: inherit; }
 .digital-object-container {
   position: absolute;
   transform: translate(-50%, -50%);
+  padding: 40px; /* Increased touch target */
 }
 
 .digital-object {
@@ -222,61 +235,62 @@ button { font: inherit; }
 
 .node-visual {
   position: relative;
-  width: 28px;
-  height: 28px;
+  width: 34px;
+  height: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .node-core {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  background: rgba(160, 42, 152, 0.9);
-  box-shadow: 0 0 16px rgba(160, 42, 152, 1), 0 0 6px rgba(255, 255, 255, 0.8);
+  background: #a02a98;
+  box-shadow: 0 0 20px #a02a98, 0 0 8px rgba(255, 255, 255, 0.9);
   z-index: 2;
 }
 
 .node-ring {
   position: absolute;
-  width: 22px;
-  height: 22px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  border: 1px solid rgba(212, 175, 55, 0.9);
-  box-shadow: inset 0 0 12px rgba(212, 175, 55, 0.4), 0 0 12px rgba(212, 175, 55, 0.4);
+  border: 1.5px solid rgba(212, 175, 55, 0.8);
+  box-shadow: inset 0 0 15px rgba(212, 175, 55, 0.5), 0 0 15px rgba(212, 175, 55, 0.5);
   z-index: 1;
-  animation: slowSpin 10s linear infinite;
+  animation: slowSpin 8s linear infinite;
 }
 
 .node-ring::before {
   content: '';
   position: absolute;
-  top: -2px;
+  top: -3px;
   left: 50%;
   transform: translateX(-50%);
-  width: 4px;
-  height: 4px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: #d4af37;
-  box-shadow: 0 0 10px #d4af37;
+  background: #fff;
+  box-shadow: 0 0 12px #d4af37, 0 0 20px #d4af37;
 }
 
 .node-flare {
   position: absolute;
-  width: 48px;
-  height: 48px;
-  background: radial-gradient(circle, rgba(160, 42, 152, 0.2) 0%, transparent 60%);
+  width: 64px;
+  height: 64px;
+  background: radial-gradient(circle, rgba(160, 42, 152, 0.3) 0%, transparent 60%);
   z-index: 0;
+  mix-blend-mode: screen;
 }
 
 .node-gold-spark {
   position: absolute;
-  width: 3px;
-  height: 3px;
+  width: 4px;
+  height: 4px;
   border-radius: 50%;
   background: #fff;
-  box-shadow: 0 0 8px #d4af37, 0 0 16px #d4af37;
+  box-shadow: 0 0 10px #d4af37, 0 0 20px #d4af37;
   z-index: 3;
 }
 
@@ -284,23 +298,23 @@ button { font: inherit; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .label-gold-accent {
-  width: 24px;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.8), transparent);
-  box-shadow: 0 0 6px rgba(212, 175, 55, 0.6);
+  width: 36px;
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 1), transparent);
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.8);
 }
 
 .digital-label {
-  font-size: clamp(11px, 1.1vw, 15px);
-  letter-spacing: 0.45em;
+  font-size: clamp(12px, 1.2vw, 16px);
+  letter-spacing: 0.5em;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.95);
   text-transform: uppercase;
-  text-shadow: 0 0 16px rgba(212, 175, 55, 0.5);
+  text-shadow: 0 0 12px rgba(212, 175, 55, 0.4), 0 0 24px rgba(160, 42, 152, 0.6);
 }
 
 @keyframes slowSpin {
@@ -543,3 +557,39 @@ h1 {
     overflow: auto;
   }
 }
+
+/* RESPONSIVE SCENE POSITIONS */
+/* Default (Landscape) */
+@media (orientation: landscape) {
+  .pos-innovation    { top: 15vh; left: 50vw; }
+  .pos-people        { top: 22vh; left: 25vw; }
+  .pos-intelligence  { top: 30vh; left: 82vw; }
+  .pos-future        { top: 48vh; left: 12vw; }
+  .pos-collaboration { top: 60vh; left: 85vw; }
+  .pos-technology    { top: 78vh; left: 20vw; }
+  .pos-learning      { top: 82vh; left: 75vw; }
+  .pos-vision        { top: 88vh; left: 45vw; }
+}
+
+/* Compact (Portrait) */
+@media (orientation: portrait) {
+  .pos-innovation    { top: 14vh; left: 50vw; }
+  .pos-people        { top: 24vh; left: 24vw; }
+  .pos-intelligence  { top: 24vh; left: 76vw; }
+  .pos-future        { top: 64vh; left: 22vw; }
+  .pos-collaboration { top: 64vh; left: 78vw; }
+  .pos-technology    { top: 78vh; left: 30vw; }
+  .pos-learning      { top: 78vh; left: 70vw; }
+  .pos-vision        { top: 90vh; left: 50vw; }
+
+  /* Pull orbital curves tighter to avoid clipping screen edges */
+  .energy-orbits-container {
+    transform: scale(0.65);
+  }
+  
+  /* Constrain the logo wrapper strictly to width constraints so it never breaks layout */
+  .logo-wrapper {
+    width: clamp(280px, 75vw, 600px);
+  }
+}
+

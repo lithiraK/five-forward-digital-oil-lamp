@@ -55,25 +55,25 @@ export function ParticleTrailCanvas({ isEmitting, nodeRef }: ParticleTrailCanvas
         const safeSpeed = lastPos.x === 0 ? 0 : speed;
         lastPos = { x: currentX, y: currentY };
 
-        const numParticles = safeSpeed > 25 ? 3 : safeSpeed > 5 ? 2 : 1;
+        const numParticles = safeSpeed > 30 ? 5 : safeSpeed > 10 ? 3 : 2;
         const now = Date.now();
 
         for (let i = 0; i < numParticles; i++) {
           const rand = Math.random();
           let color: Particle['color'] = 'gold-dust';
-          if (rand > 0.85) color = 'gold-spark';
-          else if (rand > 0.65) color = 'purple';
-          else if (i === 0 && safeSpeed > 10) color = 'energy';
+          if (rand > 0.75) color = 'gold-spark'; // Increased spark ratio
+          else if (rand > 0.55) color = 'purple';
+          else if (i === 0 && safeSpeed > 15) color = 'energy';
 
-          const spread = Math.min(safeSpeed * 0.5, 30);
+          const spread = Math.min(safeSpeed * 0.6, 40);
           particles.push({
             x: currentX + (Math.random() - 0.5) * spread,
             y: currentY + (Math.random() - 0.5) * spread,
             color,
             createdAt: now,
             speed: safeSpeed,
-            vx: (Math.random() - 0.5) * 1,
-            vy: (Math.random() - 0.5) * 1,
+            vx: (Math.random() - 0.5) * 1.5,
+            vy: (Math.random() - 0.5) * 1.5,
           });
         }
         lastEmitTime = time;
@@ -97,26 +97,26 @@ export function ParticleTrailCanvas({ isEmitting, nodeRef }: ParticleTrailCanvas
         ctx.beginPath();
         
         if (p.color === 'gold-dust') {
-          ctx.arc(p.x, p.y, 2.5 * scale, 0, Math.PI * 2);
+          ctx.arc(p.x, p.y, 3 * scale, 0, Math.PI * 2);
           ctx.fillStyle = `rgba(212, 175, 55, ${lifeRatio})`;
           ctx.shadowColor = '#d4af37';
-          ctx.shadowBlur = 15;
+          ctx.shadowBlur = 20;
         } else if (p.color === 'gold-spark') {
-          ctx.arc(p.x, p.y, 3.5 * scale, 0, Math.PI * 2);
+          ctx.arc(p.x, p.y, 4 * scale, 0, Math.PI * 2);
           ctx.fillStyle = `rgba(255, 255, 255, ${lifeRatio})`;
           ctx.shadowColor = '#d4af37';
-          ctx.shadowBlur = 20;
+          ctx.shadowBlur = 30;
         } else if (p.color === 'purple') {
-          ctx.arc(p.x, p.y, 3 * scale, 0, Math.PI * 2);
+          ctx.arc(p.x, p.y, 4 * scale, 0, Math.PI * 2);
           ctx.fillStyle = `rgba(160, 42, 152, ${lifeRatio})`;
           ctx.shadowColor = '#a02a98';
-          ctx.shadowBlur = 15;
+          ctx.shadowBlur = 25;
         } else {
           // energy
-          ctx.arc(p.x, p.y, 9 * scale, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(212, 175, 55, ${lifeRatio * 0.6})`;
-          ctx.shadowColor = 'rgba(212, 175, 55, 0.9)';
-          ctx.shadowBlur = 30;
+          ctx.arc(p.x, p.y, 12 * scale, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(212, 175, 55, ${lifeRatio * 0.7})`;
+          ctx.shadowColor = 'rgba(212, 175, 55, 1)';
+          ctx.shadowBlur = 40;
         }
         
         ctx.fill();

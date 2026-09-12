@@ -25,16 +25,16 @@ const labels: Record<CeremonyObject, string> = {
   future: 'FUTURE',
 };
 
-// Organic, non-grid positions around the center
-const positions: Record<CeremonyObject, { top: string; left: string; delay: number }> = {
-  people: { top: '18%', left: '15%', delay: 0 },
-  innovation: { top: '10%', left: '60%', delay: 1.2 },
-  intelligence: { top: '35%', left: '85%', delay: 0.5 },
-  collaboration: { top: '65%', left: '80%', delay: 2.1 },
-  learning: { top: '85%', left: '65%', delay: 0.8 },
-  vision: { top: '88%', left: '30%', delay: 2.5 },
-  technology: { top: '70%', left: '10%', delay: 1.5 },
-  future: { top: '40%', left: '5%', delay: 0.2 },
+// Organic, non-grid animation delays
+const positions: Record<CeremonyObject, { delay: number }> = {
+  people: { delay: 0 },
+  innovation: { delay: 1.2 },
+  intelligence: { delay: 0.5 },
+  collaboration: { delay: 2.1 },
+  learning: { delay: 0.8 },
+  vision: { delay: 2.5 },
+  technology: { delay: 1.5 },
+  future: { delay: 0.2 },
 };
 
 export function DisplayScene({ state, sendMessage, clientId }: DisplaySceneProps) {
@@ -114,7 +114,6 @@ export function DisplayScene({ state, sendMessage, clientId }: DisplaySceneProps
             label={labels[key]}
             isCompleted={state[key] === 'completed'}
             isNewlyCompleted={justCompleted?.id === key}
-            position={{ top: positions[key].top, left: positions[key].left }}
             delay={positions[key].delay}
             targetRef={targetRef}
             onAttemptComplete={(id) => sendMessage({ type: 'COMPLETE_OBJECT', object: id })}

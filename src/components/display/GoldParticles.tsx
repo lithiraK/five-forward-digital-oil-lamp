@@ -20,6 +20,8 @@ export function GoldParticles() {
       alpha: number;
       dAlpha: number;
       maxAlpha: number;
+      blur: number;
+      isSpark: boolean;
     }> = [];
 
     const resize = () => {
@@ -30,21 +32,38 @@ export function GoldParticles() {
 
     const initParticles = () => {
       particles = [];
-      const numParticles = 130; // Increased for more luxurious presence
+      const numParticles = 200; // Increased for a richer field
       for (let i = 0; i < numParticles; i++) {
-        const isBrightCore = Math.random() > 0.85; // 15% are brighter cores
-        const radius = isBrightCore ? Math.random() * 2 + 1 : Math.random() * 1.5 + 0.3;
-        const maxAlpha = isBrightCore ? Math.random() * 0.6 + 0.4 : Math.random() * 0.4 + 0.1;
+        const isSpark = Math.random() > 0.92; // 8% are bright shimmering sparks
+        const isBrightCore = Math.random() > 0.8;
+        
+        let radius, maxAlpha, blur;
+        
+        if (isSpark) {
+          radius = Math.random() * 2 + 1.5;
+          maxAlpha = Math.random() * 0.4 + 0.6; // 0.6 - 1.0 opacity
+          blur = 0;
+        } else if (isBrightCore) {
+          radius = Math.random() * 2.5 + 1;
+          maxAlpha = Math.random() * 0.5 + 0.3; // 0.3 - 0.8 opacity
+          blur = Math.random() * 2;
+        } else {
+          radius = Math.random() * 1.5 + 0.5;
+          maxAlpha = Math.random() * 0.3 + 0.1; // 0.1 - 0.4 opacity
+          blur = Math.random() * 4 + 1; // background depth
+        }
 
         particles.push({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
-          vx: (Math.random() - 0.5) * 0.12,
-          vy: (Math.random() - 0.5) * 0.12 - 0.08, // Subtle upward drift
+          vx: (Math.random() - 0.5) * 0.15,
+          vy: (Math.random() - 0.5) * 0.15 - 0.1, // Subtle upward drift
           radius,
           alpha: Math.random() * maxAlpha,
-          dAlpha: (Math.random() - 0.5) * 0.008,
+          dAlpha: (Math.random() - 0.5) * (isSpark ? 0.02 : 0.005),
           maxAlpha,
+          blur,
+          isSpark,
         });
       }
     };
@@ -72,9 +91,24 @@ export function GoldParticles() {
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        // Premium warm gold: #d4af37 -> rgb(212, 175, 55)
-        ctx.fillStyle = `rgba(212, 175, 55, ${p.alpha})`;
+        
+        if (p.isSpark) {
+          ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`;
+          ctx.shadowBlur = 10;
+          ctx.shadowColor = '#d4af37';
+        } else {
+          // Premium warm gold: #d4af37 -> rgb(212, 175, 55)
+          ctx.fillStyle = `rgba(212, 175, 55, ${p.alpha})`;
+          if (p.blur > 0) {
+            ctx.shadowBlur = p.blur * 2;
+            ctx.shadowColor = `rgba(212, 175, 55, ${p.alpha})`;
+          } else {
+            ctx.shadowBlur = 0;
+          }
+        }
+        
         ctx.fill();
+        ctx.shadowBlur = 0; // reset
       }
 
       animationFrameId = requestAnimationFrame(draw);
