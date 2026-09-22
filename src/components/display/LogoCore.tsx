@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import { Logo } from '../Logo';
 import type { CeremonyObject } from '../../types/ceremony';
 
 interface LogoCoreProps {
@@ -10,17 +9,6 @@ interface LogoCoreProps {
   logoRef?: React.RefObject<HTMLDivElement | null>;
 }
 
-// Pre-calculated origins based on the general quadrants of each node
-const maskOrigins: Record<CeremonyObject, string> = {
-  people: '14.6% 17.6%',
-  innovation: '60.1% 9.9%',
-  intelligence: '85.2% 34.8%',
-  collaboration: '80.3% 65.2%',
-  learning: '65.2% 85.2%',
-  vision: '29.7% 88.3%',
-  technology: '9.7% 70.3%',
-  future: '4.7% 39.9%',
-};
 
 export function LogoCore({ impactTrigger, completedObjects, positions, logoRef }: LogoCoreProps) {
   const [pulse, setPulse] = useState(false);
@@ -45,12 +33,9 @@ export function LogoCore({ impactTrigger, completedObjects, positions, logoRef }
     if (illuminationLevel === 8) {
       maskImage = 'none'; // Fully revealed
     } else {
-      const masks = completedObjects.map(id => {
-        const origin = maskOrigins[id];
-        // Reveal a significant quadrant/section for each value
-        return `radial-gradient(circle at ${origin}, black 0%, black 20%, transparent 60%)`;
-      });
-      maskImage = masks.join(', ');
+      const pct = (illuminationLevel / 8) * 100;
+      // Sweeps left to right, with a 15% smooth light spread edge
+      maskImage = `linear-gradient(to right, black 0%, black ${pct}%, transparent ${pct + 15}%, transparent 100%)`;
     }
   }
 
@@ -105,7 +90,7 @@ export function LogoCore({ impactTrigger, completedObjects, positions, logoRef }
       >
         {/* Base Layer: Dark and unlit but premium */}
         <div style={{ position: 'absolute', inset: 0, filter: 'brightness(0.2) grayscale(0.5) contrast(1.1) drop-shadow(0 0 10px rgba(160, 42, 152, 0.2))' }}>
-          <Logo />
+          <img src="/assets/branding/code-terriers-3d.png" alt="Code Terriers" className="logo" />
         </div>
 
         {/* Illuminated Layer: Bright, glowing, and masked */}
@@ -115,7 +100,7 @@ export function LogoCore({ impactTrigger, completedObjects, positions, logoRef }
           WebkitMaskImage: maskImage,
           maskImage: maskImage,
         }}>
-          <Logo />
+          <img src="/assets/branding/code-terriers-3d.png" alt="Code Terriers" className="logo" />
         </div>
       </motion.div>
     </div>

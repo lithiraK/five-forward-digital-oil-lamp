@@ -1,4 +1,4 @@
-import { motion, AnimatePresence, useAnimation } from 'framer-motion';
+import { motion, AnimatePresence, useAnimation, useMotionValue } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import type { CeremonyObject } from '../../types/ceremony';
 import type { ClientToServerMessage } from '../../types/protocol';
@@ -32,6 +32,38 @@ export function DigitalObject({ id, label, isCompleted, isNewlyCompleted, delay,
   const remoteDragRef = useRef(false);
   const hasRunSequence = useRef(false);
 
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const baseCenterRef = useRef({ x: 0, y: 0 });
+  const trailPositionRef = useRef({ x: 0, y: 0 });
+
+  const refreshBaseCenter = () => {
+    if (nodeRef.current) {
+      const rect = nodeRef.current.getBoundingClientRect();
+      const transform = window.getComputedStyle(nodeRef.current).transform;
+      let currentX = 0; let currentY = 0;
+      if (transform && transform !== 'none') {
+        const matrix = new DOMMatrixReadOnly(transform);
+        currentX = matrix.m41;
+        currentY = matrix.m42;
+      }
+      baseCenterRef.current = {
+        x: rect.left - currentX + rect.width / 2,
+        y: rect.top - currentY + rect.height / 2,
+      };
+    }
+  };
+
+  useEffect(() => {
+    const unsubX = x.on('change', (latestX) => {
+      trailPositionRef.current.x = baseCenterRef.current.x + latestX;
+    });
+    const unsubY = y.on('change', (latestY) => {
+      trailPositionRef.current.y = baseCenterRef.current.y + latestY;
+    });
+    return () => { unsubX(); unsubY(); };
+  }, [x, y]);
+
   useEffect(() => {
     // Initial float (only if not completed, not locally dragging, and not remote dragging)
     if (!isCompleted && !isDragging && !remoteDragRef.current) {
@@ -57,6 +89,7 @@ export function DigitalObject({ id, label, isCompleted, isNewlyCompleted, delay,
       if (activeDrag?.object === id && activeDrag.clientId !== clientId) {
         if (!remoteDragRef.current) {
           controls.stop();
+          refreshBaseCenter();
           setIsEmitting(true);
           controls.start({
             scale: 1.15,
@@ -92,6 +125,7 @@ export function DigitalObject({ id, label, isCompleted, isNewlyCompleted, delay,
 
       setIsVisible(true);
       const runSequence = async () => {
+        refreshBaseCenter();
         // 0.0s - 0.4s: Brighten and charge up
         await controls.start({
           filter: 'brightness(1.8) drop-shadow(0 0 20px rgba(212, 175, 55, 0.8))',
@@ -174,6 +208,7 @@ export function DigitalObject({ id, label, isCompleted, isNewlyCompleted, delay,
     
     controls.stop();
     setIsDragging(true);
+    refreshBaseCenter();
     setIsEmitting(true);
 
     let currentX = 0; let currentY = 0;
@@ -277,7 +312,7 @@ export function DigitalObject({ id, label, isCompleted, isNewlyCompleted, delay,
   return (
     <>
       {/* High-performance Canvas Particle Trail */}
-      <ParticleTrailCanvas isEmitting={isEmitting} nodeRef={nodeRef} />
+      <ParticleTrailCanvas isEmitting={isEmitting} trailPositionRef={trailPositionRef} />
       
       <div className={`digital-object-container pos-${id}`}>
         <AnimatePresence>
@@ -286,7 +321,7 @@ export function DigitalObject({ id, label, isCompleted, isNewlyCompleted, delay,
               ref={nodeRef}
               key={id}
               className="digital-object"
-              style={{ touchAction: 'none' }} // Prevent scrolling on touch devices during drag
+              style={{ touchAction: 'none', x, y }} // Prevent scrolling on touch devices during drag
               initial={{ opacity: 0, scale: 0.8 }}
               animate={controls}
               onPointerDown={handlePointerDown}

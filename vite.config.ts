@@ -6,5 +6,15 @@ export default defineConfig({
   server: {
     host: true,
     port: 5173,
+    allowedHosts: ['.trycloudflare.com'],
+    proxy: {
+      '/ws': {
+        target: 'ws://localhost:8787',
+        ws: true,
+        changeOrigin: true,
+        rewriteWsOrigin: true,
+        secure: false
+      }
+    }
   },
 });

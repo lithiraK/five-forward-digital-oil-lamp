@@ -12,10 +12,10 @@ interface Particle {
 
 interface ParticleTrailCanvasProps {
   isEmitting: boolean;
-  nodeRef: React.RefObject<HTMLDivElement | null>;
+  trailPositionRef: React.MutableRefObject<{ x: number; y: number }>;
 }
 
-export function ParticleTrailCanvas({ isEmitting, nodeRef }: ParticleTrailCanvasProps) {
+export function ParticleTrailCanvas({ isEmitting, trailPositionRef }: ParticleTrailCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -43,10 +43,9 @@ export function ParticleTrailCanvas({ isEmitting, nodeRef }: ParticleTrailCanvas
     const draw = (time: number) => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      if (isEmitting && time - lastEmitTime > 16 && nodeRef.current) {
-        const rect = nodeRef.current.getBoundingClientRect();
-        const currentX = rect.left + rect.width / 2;
-        const currentY = rect.top + rect.height / 2;
+      if (isEmitting && time - lastEmitTime > 16) {
+        const currentX = trailPositionRef.current.x;
+        const currentY = trailPositionRef.current.y;
 
         const dx = currentX - lastPos.x;
         const dy = currentY - lastPos.y;
@@ -120,8 +119,6 @@ export function ParticleTrailCanvas({ isEmitting, nodeRef }: ParticleTrailCanvas
         }
         
         ctx.fill();
-        // Reset shadow for next draw to avoid compounding performance hit
-        ctx.shadowBlur = 0; 
       }
 
       if (isEmitting || particles.length > 0) {
@@ -142,7 +139,7 @@ export function ParticleTrailCanvas({ isEmitting, nodeRef }: ParticleTrailCanvas
       window.removeEventListener('resize', resize);
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
     };
-  }, [isEmitting, nodeRef]);
+  }, [isEmitting, trailPositionRef]);
 
   return (
     <canvas

@@ -3,9 +3,10 @@ import type { CeremonyState, CeremonyObject } from '../../types/ceremony';
 import type { ClientToServerMessage } from '../../types/protocol';
 import type { ActiveDragState } from '../../lib/websocket';
 import { Atmosphere } from './Atmosphere';
+import { BackgroundVideo } from './BackgroundVideo';
 import { DigitalObject } from './DigitalObject';
 import { LogoCore } from './LogoCore';
-import { GrandFinale } from './finale/GrandFinale';
+import { GrandFinale, type FinaleState } from './finale/GrandFinale';
 import { useAudio } from '../../hooks/useAudio';
 
 interface DisplaySceneProps {
@@ -44,6 +45,7 @@ export function DisplayScene({ state, sendMessage, clientId }: DisplaySceneProps
 
   const [playFinale, setPlayFinale] = useState(false);
   const [instantFinale, setInstantFinale] = useState(false);
+  const [finaleStage, setFinaleStage] = useState<FinaleState>('idle');
 
   const completedObjects = (Object.keys(state) as CeremonyObject[]).filter(
     (key) => state[key] === 'completed'
@@ -76,6 +78,7 @@ export function DisplayScene({ state, sendMessage, clientId }: DisplaySceneProps
     } else if (completedCount === 0) {
       setPlayFinale(false);
       setInstantFinale(false);
+      setFinaleStage('idle');
     }
 
     setPreviousState(state);
@@ -93,7 +96,8 @@ export function DisplayScene({ state, sendMessage, clientId }: DisplaySceneProps
 
   return (
     <main className="screen display-screen">
-      <GrandFinale play={playFinale} instant={instantFinale} />
+      <BackgroundVideo fadeOut={finaleStage === 'video-playing'} />
+      <GrandFinale play={playFinale} instant={instantFinale} onStageChange={setFinaleStage} />
       
       <Atmosphere />
       

@@ -89,26 +89,33 @@ export function GoldParticles() {
           p.alpha = Math.max(0, Math.min(p.alpha, p.maxAlpha));
         }
 
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        
         if (p.isSpark) {
+          // Fast simulated glow layer (replaces expensive shadowBlur)
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius * 2.5, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(212, 175, 55, ${p.alpha * 0.4})`;
+          ctx.fill();
+
+          // Spark core
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
           ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`;
-          ctx.shadowBlur = 10;
-          ctx.shadowColor = '#d4af37';
+          ctx.fill();
         } else {
-          // Premium warm gold: #d4af37 -> rgb(212, 175, 55)
-          ctx.fillStyle = `rgba(212, 175, 55, ${p.alpha})`;
+          // Fast simulated blur layer
           if (p.blur > 0) {
-            ctx.shadowBlur = p.blur * 2;
-            ctx.shadowColor = `rgba(212, 175, 55, ${p.alpha})`;
-          } else {
-            ctx.shadowBlur = 0;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius + p.blur, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(212, 175, 55, ${p.alpha * 0.3})`;
+            ctx.fill();
           }
+
+          // Gold core
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(212, 175, 55, ${p.alpha})`;
+          ctx.fill();
         }
-        
-        ctx.fill();
-        ctx.shadowBlur = 0; // reset
       }
 
       animationFrameId = requestAnimationFrame(draw);

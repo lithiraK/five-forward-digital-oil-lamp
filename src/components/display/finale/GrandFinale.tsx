@@ -1,15 +1,21 @@
 import { useEffect, useState } from 'react';
-import { FinaleVideo } from './FinaleVideo';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FinalLogoRevealVideo } from './FinalLogoRevealVideo';
 
 interface GrandFinaleProps {
   play: boolean;
   instant?: boolean;
+  onStageChange?: (stage: FinaleState) => void;
 }
 
-export type FinaleState = 'idle' | 'final-logo-hold' | 'video-playing' | 'video-complete' | 'hydrated';
+export type FinaleState = 'idle' | 'final-logo-hold' | 'transition' | 'video-playing' | 'video-complete' | 'hydrated';
 
-export function GrandFinale({ play, instant }: GrandFinaleProps) {
+export function GrandFinale({ play, instant, onStageChange }: GrandFinaleProps) {
   const [stage, setStage] = useState<FinaleState>('idle');
+
+  useEffect(() => {
+    onStageChange?.(stage);
+  }, [stage, onStageChange]);
 
   useEffect(() => {
     if (!play) {
@@ -29,23 +35,47 @@ export function GrandFinale({ play, instant }: GrandFinaleProps) {
     
     setStage('final-logo-hold');
 
-    const timer = setTimeout(() => {
-      setStage('video-playing');
+    const transitionTimer = setTimeout(() => {
+      setStage('transition');
     }, 3000);
 
-    return () => clearTimeout(timer);
+    const videoTimer = setTimeout(() => {
+      setStage('video-playing');
+    }, 4500);
+
+    return () => {
+      clearTimeout(transitionTimer);
+      clearTimeout(videoTimer);
+    };
   }, [play, instant]);
 
   if (!play || stage === 'hydrated') return null;
 
   return (
     <div className="finale-container">
-      {(stage === 'video-playing' || stage === 'video-complete') && (
-        <FinaleVideo 
-          visible={true} 
-          onComplete={() => setStage('video-complete')} 
-        />
-      )}
+      <AnimatePresence>
+        {stage === 'transition' && (
+          <motion.div
+            className="finale-cinematic-transition"
+            initial={{ opacity: 0, scale: 0.8, filter: 'blur(20px)' }}
+            animate={{ opacity: 1, scale: 1.2, filter: 'blur(0px)' }}
+            exit={{ opacity: 0, scale: 2, filter: 'blur(10px)' }}
+            transition={{ duration: 1.5, ease: 'easeInOut' }}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'radial-gradient(circle at center, rgba(212, 175, 55, 0.4) 0%, rgba(160, 42, 152, 0.2) 40%, transparent 80%)',
+              zIndex: 40,
+              pointerEvents: 'none'
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      <FinalLogoRevealVideo 
+        stage={stage} 
+        onComplete={() => setStage('video-complete')} 
+      />
     </div>
   );
 }

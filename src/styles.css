@@ -48,7 +48,7 @@ button { font: inherit; }
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background: radial-gradient(circle at center, #1a0820 0%, #050208 50%, #000000 100%);
+  background: radial-gradient(circle at center, rgba(26, 8, 32, 0.4) 0%, rgba(5, 2, 8, 0.6) 50%, rgba(0, 0, 0, 0.9) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -59,6 +59,32 @@ button { font: inherit; }
   inset: 0;
   pointer-events: none;
   z-index: 1;
+}
+
+/* BACKGROUND VIDEO */
+.background-video-container {
+  position: absolute;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+  transform: translateZ(0); /* Hardware accelerate composite layer */
+  will-change: transform, opacity;
+}
+
+.background-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.background-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 2, 15, 0.7); /* Deep slate purple overlay */
+  pointer-events: none;
 }
 
 .radial-glow {
@@ -569,6 +595,7 @@ h1 {
   .pos-technology    { top: 78vh; left: 20vw; }
   .pos-learning      { top: 82vh; left: 75vw; }
   .pos-vision        { top: 88vh; left: 45vw; }
+
 }
 
 /* Compact (Portrait) */
@@ -591,5 +618,15 @@ h1 {
   .logo-wrapper {
     width: clamp(280px, 75vw, 600px);
   }
+}
+
+@keyframes spinOrbit {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes spinOrbitReverse {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
 }
 

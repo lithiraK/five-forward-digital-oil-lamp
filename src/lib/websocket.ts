@@ -37,14 +37,14 @@ const getWebSocketUrl = () => {
     return envUrl;
   }
   
-  // Otherwise, dynamically connect to port 8787 on whatever IP/hostname served the frontend
+  // Otherwise, dynamically connect to the same origin with /ws
   if (typeof window !== 'undefined') {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const host = window.location.hostname;
-    return `${protocol}//${host}:8787`;
+    const host = window.location.host; // .host includes port if present
+    return `${protocol}//${host}/ws`;
   }
   
-  return 'ws://localhost:8787';
+  return 'ws://localhost:5173/ws'; // Fallback for SSR
 };
 
 const WS_URL = getWebSocketUrl();
